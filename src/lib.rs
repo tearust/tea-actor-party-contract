@@ -53,22 +53,39 @@ fn handle_txn_exec(tsid_txn_bytes: &[u8])-> HandlerResult<Vec<u8>>{
 	let sample_txn: SampleTxn = bincode::deserialize(&txn_bytes)?;
 	let base: Tsid = helper_get_state_tsid()?;
 	info!("decode the sample_txn {:?}", &sample_txn);
-	match sample_txn {
+	let context_bytes = match sample_txn {
 		SampleTxn::Topup{acct, amt} =>{
 			info!("acct, amt: {:?}, {:?}", &acct, &amt);
 			let ctx = TokenContext::new(tsid, base, TOKEN_ID_TEA);
 			let ctx_bytes = bincode::serialize(&ctx)?;
 			let to: u32 = acct;
 			let amt: Vec<u8> = bincode::serialize(&amt)?;
-			let res = actor_statemachine::topup(TopupRequest{
+			actor_statemachine::topup(TopupRequest{
 				ctx: ctx_bytes,
 				to,
 				amt,
-			})?;
-			Ok(res)
-		}
-		_ =>Ok(Vec::new())
-	}
+			})?
+			
+		},
+		SampleTxn::TransferTea{from, to, amt} => {
+			info!("TransferTea from to amt: {:?},{:?},{:?}", &from, &to, &amt);
+			let ctx = TokenContext::new(tsid, base, TOKEN_ID_TEA);
+			let ctx_bytes = bincode::serialize(&ctx)?;
+			let amt: Vec<u8> = bincode::serialize(&amt)?;
+			actor_statemachine::mov(MoveRequest{
+				ctx: ctx_bytes,
+				from,
+				to,
+				amt,
+			})?
+		},
+		_ =>Err(anyhow::anyhow!("Unhandled txn OP type"))?,
+	};
+	// let context: TokenContext = bincode::deserialize(&context_bytes)?;
+	let should_be_empty = actor_statemachine::commit(CommitRequest{
+		ctx: context_bytes
+	})?;
+	Ok(should_be_empty)
 }
 fn health(_req: codec::core::HealthRequest) -> HandlerResult<()> {
 	info!("health call from simple actor");
