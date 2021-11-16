@@ -1,9 +1,11 @@
 #[macro_use]
 extern crate log;
-
+use serde::{Serialize, Deserialize};
+use bincode::Result as SerdeResult;
 use wascc_actor::prelude::codec::messaging::BrokerMessage;
 use wascc_actor::prelude::*;
 use wascc_actor::HandlerResult;
+use sample::SampleTxn;
 // use prost::Message;
 
 actor_handlers! {
@@ -38,7 +40,10 @@ fn handle_system_init() -> anyhow::Result<()> {
 }
 
 fn handle_txn_exec(txn_bytes: &[u8])-> HandlerResult<Vec<u8>>{
-	// just echo the input back for communication testing
+	let sample_txn = bincode::deserialize(txn_bytes)?;
+	info!("decode the sample_txn {:?}", &sample_txn);
+	
+
 	Ok(txn_bytes.to_vec())
 }
 fn health(_req: codec::core::HealthRequest) -> HandlerResult<()> {
