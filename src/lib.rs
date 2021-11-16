@@ -8,7 +8,7 @@ use wascc_actor::HandlerResult;
 use sample::SampleTxn;
 use prost::Message;
 use tea_actor_utility::actor_statemachine;
-use interface::{TOKEN_ID_TEA, Tsid,};
+use interface::{TOKEN_ID_TEA, Balance, Tsid,};
 use token_state::token_context::TokenContext;
 use vmh_codec::message::structs_proto::tokenstate::*;
 actor_handlers! {
@@ -76,6 +76,34 @@ fn handle_txn_exec(tsid_txn_bytes: &[u8])-> HandlerResult<Vec<u8>>{
 				ctx: ctx_bytes,
 				from,
 				to,
+				amt,
+			})?
+		},
+		SampleTxn::PostMessage{from, ttl} => {
+			info!("PostMessage from ttl: {:?},{:?}", &from, &ttl);
+			let cost_please_add_app_logic_here = (ttl/1024u32) as Balance;
+			let to_please_add_app_logic_here_should_be_bonding_curve = 0u32;
+			let ctx = TokenContext::new(tsid, base, TOKEN_ID_TEA);
+			let ctx_bytes = bincode::serialize(&ctx)?;
+			let amt: Vec<u8> = bincode::serialize(&cost_please_add_app_logic_here)?;
+			actor_statemachine::mov(MoveRequest{
+				ctx: ctx_bytes,
+				from,
+				to: to_please_add_app_logic_here_should_be_bonding_curve,
+				amt,
+			})?
+		},
+		SampleTxn::PrivateMessage{from, to, ttl} => {
+			info!("PrivateMessage from ttl: {:?},{:?},{:?}", &from, &to, &ttl);
+			let cost_please_add_app_logic_here = (ttl/1024u32) as Balance;
+			let to_please_add_app_logic_here_should_be_bonding_curve = 0u32;
+			let ctx = TokenContext::new(tsid, base, TOKEN_ID_TEA);
+			let ctx_bytes = bincode::serialize(&ctx)?;
+			let amt: Vec<u8> = bincode::serialize(&cost_please_add_app_logic_here)?;
+			actor_statemachine::mov(MoveRequest{
+				ctx: ctx_bytes,
+				from,
+				to: to_please_add_app_logic_here_should_be_bonding_curve,
 				amt,
 			})?
 		},
