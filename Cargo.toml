@@ -22,6 +22,8 @@ tea-codec = {path="../tea-codec"}
 tea-actor-utility = { path="../tea-actor-utility" }
 wascc-actor = { git = "https://github.com/tearust/wascc-actor", branch = "nitro" }
 sample = {path = "../statemachine/sample"}
+interface = {path = "../statemachine/interface"}
+token-state = { path = "../statemachine/token_state"}
 [dev-dependencies]
 rand = "0.8.4"
 
