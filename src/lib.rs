@@ -67,7 +67,7 @@ fn handle_txn_exec(tsid_txn_bytes: &[u8])-> HandlerResult<Vec<u8>>{
 			})?
 			
 		},
-		SampleTxn::TransferTea{from, to, amt} => {
+		SampleTxn::Transfer_tea{from, to, amt} => {
 			info!("TransferTea from to amt: {:?},{:?},{:?}", &from, &to, &amt);
 			let ctx = TokenContext::new(tsid, base, TOKEN_ID_TEA);
 			let ctx_bytes = bincode::serialize(&ctx)?;
