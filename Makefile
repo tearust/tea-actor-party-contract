@@ -33,11 +33,11 @@ update:
 
 release-tpm:
 	@$(CARGO) build --release --target wasm32-unknown-unknown --features tpm
-	wascap sign $(RELEASE)/tea_actor_party_contract.wasm $(RELEASE)/tea_party_contract_signed.wasm -i $(KEYDIR)/account.nk -u $(KEYDIR)/module.nk -g -l -z -c tea:tpm -c tea:layer1 -c tea:keyvalue -c tea:env -c tea:ipfs -c tea:intercom -c tea:crypto -c tea:nitro -c tea:vmh-provider -n "TEA Party Contract Actor"
+	wascap sign $(RELEASE)/tea_actor_party_contract.wasm $(RELEASE)/tea_party_contract_signed.wasm -i $(KEYDIR)/account.nk -u $(KEYDIR)/module.nk -g -l -z -c tea:tpm -c tea:layer1 -c tea:keyvalue -c tea:env -c tea:ipfs -c tea:intercom -c tea:crypto -c tea:nitro -c tea:vmh-provider -c tea:replica -c tea:tokenstate -n "TEA Party Contract Actor"
 
 release-nitro:
 	@$(CARGO) build --release --target wasm32-unknown-unknown --features nitro
-	wascap sign $(RELEASE)/tea_actor_party_contract.wasm $(RELEASE)/tea_party_contract_signed.wasm -i $(KEYDIR)/account.nk -u $(KEYDIR)/module.nk -g -l -z -c tea:tpm -c tea:layer1 -c tea:keyvalue -c tea:env -c tea:ipfs -c tea:intercom -c tea:crypto -c tea:nitro -c tea:vmh-provider -n "TEA Party Contract Actor"
+	wascap sign $(RELEASE)/tea_actor_party_contract.wasm $(RELEASE)/tea_party_contract_signed.wasm -i $(KEYDIR)/account.nk -u $(KEYDIR)/module.nk -g -l -z -c tea:tpm -c tea:layer1 -c tea:keyvalue -c tea:env -c tea:ipfs -c tea:intercom -c tea:crypto -c tea:nitro -c tea:vmh-provider -c tea:replica -c tea:tokenstate -n "TEA Party Contract Actor"
 
 keys: keys-account
 keys: keys-module
