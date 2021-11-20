@@ -30,7 +30,6 @@ fn handle_txn_exec(msg: BrokerMessage) -> HandlerResult<()> {
 	info!("base tsid is {:?}", &base);
 	let context_bytes = match sample_txn {
 		SampleTxn::Topup{acct, amt} =>{
-			info!("acct, amt: {:?}, {:?}", &acct, &amt);
 			let ctx = TokenContext::new(tsid, base, TOKEN_ID_TEA);
 			let ctx_bytes = bincode::serialize(&ctx)?;
 			let to: u32 = acct;
@@ -40,7 +39,6 @@ fn handle_txn_exec(msg: BrokerMessage) -> HandlerResult<()> {
 				to,
 				amt,
 			})?
-			
 		},
 		SampleTxn::TransferTea{from, to, amt} => {
 			info!("TransferTea from to amt: {:?},{:?},{:?}", &from, &to, &amt);
@@ -84,10 +82,12 @@ fn handle_txn_exec(msg: BrokerMessage) -> HandlerResult<()> {
 		},
 		_ =>Err(anyhow::anyhow!("Unhandled txn OP type"))?,
 	};
-	// let context: TokenContext = bincode::deserialize(&context_bytes)?;
-	let _ = actor_statemachine::commit(CommitRequest{
+	let res_commit_ctx_bytes = actor_statemachine::commit(CommitRequest{
 		ctx: context_bytes
 	})?;
+	if res_commit_ctx_bytes.is_empty(){
+		info!("*********  Commit succesfully. the ctx is empty. it is supposed to be empty");
+	}
 	Ok(())
 }
 fn health(_req: codec::core::HealthRequest) -> HandlerResult<()> {
