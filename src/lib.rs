@@ -12,9 +12,35 @@ use interface::{TOKEN_ID_TEA, Balance, Tsid,};
 use token_state::token_context::TokenContext;
 use vmh_codec::message::structs_proto::tokenstate::*;
 actor_handlers! {
+	codec::messaging::OP_DELIVER_MESSAGE => handle_message,
 	tea_codec::OP_ACTOR_EXEC_TXN => handle_txn_exec,
 	codec::core::OP_HEALTH_REQUEST => health
 }
+fn handle_message(msg: BrokerMessage) -> HandlerResult<Vec<u8>> {
+	debug!("simple-actor received deliver message, {:?}", &msg);
+
+	match handle_message_inner(msg) {
+		Ok(res) => Ok(res),
+		Err(e) => {
+			error!("simple-actor handle test task error {}", e);
+			Err(e)
+		}
+	}
+}
+fn handle_message_inner(msg: BrokerMessage) -> HandlerResult<Vec<u8>> {
+	let channel_parts: Vec<&str> = msg.subject.split('.').collect();
+	match &channel_parts[..] {
+		["tea", "system", "init"] => handle_system_init()?,
+		_ => (),
+	};
+	Ok(vec![])
+}
+fn handle_system_init() -> anyhow::Result<()> {
+	info!("simple actor system init...");
+	Ok(())
+}
+
+
 fn helper_get_state_tsid()->HandlerResult<Tsid>{
 	let tsid_bytes: Vec<u8> = actor_statemachine::query_state_tsid()?;
 	let tsid: Tsid = bincode::deserialize(&tsid_bytes)?;
