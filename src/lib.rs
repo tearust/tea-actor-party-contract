@@ -5,12 +5,15 @@ use interface::{Balance, Tsid, TOKEN_ID_TEA};
 use prost::Message;
 use sample::SampleTxn;
 use serde::{Deserialize, Serialize};
-use tea_actor_utility::actor_statemachine;
+use tea_actor_utility::{action::reply_intercom, actor_statemachine};
 use token_state::token_context::TokenContext;
 use vmh_codec::message::structs_proto::tokenstate::*;
 use wascc_actor::prelude::codec::messaging::BrokerMessage;
 use wascc_actor::prelude::*;
 use wascc_actor::HandlerResult;
+
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 actor_handlers! {
 	codec::messaging::OP_DELIVER_MESSAGE => handle_message,
 	tea_codec::OP_ACTOR_EXEC_TXN => handle_txn_exec,
@@ -31,10 +34,22 @@ fn handle_message_inner(msg: BrokerMessage) -> HandlerResult<Vec<u8>> {
 	let channel_parts: Vec<&str> = msg.subject.split('.').collect();
 	match &channel_parts[..] {
 		["tea", "system", "init"] => handle_system_init()?,
+		["actor", "version"] => version(&msg)?,
 		_ => (),
 	};
 	Ok(vec![])
 }
+
+fn version(msg: &BrokerMessage) -> HandlerResult<()> {
+	reply_intercom(
+		&msg.reply_to,
+		tea_codec::serialize(tea_codec::ActorVersionMessage {
+			version: VERSION.to_string(),
+		})?,
+	)?;
+	Ok(())
+}
+
 fn handle_system_init() -> anyhow::Result<()> {
 	info!("simple actor system init...");
 	Ok(())
